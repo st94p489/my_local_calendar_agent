@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: write
-  
+
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -47,5 +47,7 @@ jobs:
             exit 0
           fi
           git commit -m "update events"
-          git pull --rebase origin main
+          # Ensure local branch is updated before pushing
+          git fetch origin
+          git rebase origin/main || git rebase --abort
           git push origin main
