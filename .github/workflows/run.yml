@@ -34,4 +34,4 @@ jobs:
           git config user.email "bot@example.com"
           git add events.ics
           git commit -m "update events" || echo "no changes"
-          git push
+          git push --force
