@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 from icalendar import Calendar, Event
+from dateutil.parser import isoparse
+from urllib.parse import urljoin
 import hashlib
 import os
 from openai import OpenAI
@@ -17,11 +19,17 @@ def fetch_patch_events():
 
     links = []
     for a in soup.find_all("a", href=True):
-        href = a["href"]
-        if "patch.com" in href and "theater" in href.lower():
-            links.append(href)
+        href = a["href"].strip()
+        if not href or href.startswith("#"):
+            continue
 
-    return list(set(links))
+        full_url = urljoin(url, href)
+        if "/calendar/event/" in full_url:
+            links.append(full_url)
+
+    unique_links = sorted(set(links))
+    print(f"Found {len(unique_links)} calendar event URLs")
+    return unique_links
 
 
 def extract_event(url):
@@ -47,14 +55,21 @@ def extract_event(url):
 
 def create_ics(events):
     cal = Calendar()
+    cal.add("prodid", "-//My Local Calendar Agent//example.com//")
+    cal.add("version", "2.0")
+    cal.add("calscale", "GREGORIAN")
+
+    if not events:
+        print("No events to write to ICS file.")
 
     for e in events:
         event = Event()
         event.add("summary", e["title"])
         event.add("location", f"{e['venue']}, {e['city']}")
-        event.add("dtstart", datetime.fromisoformat(e["start_time"]))
-        event.add("dtend", datetime.fromisoformat(e["end_time"]))
+        event.add("dtstart", isoparse(e["start_time"]))
+        event.add("dtend", isoparse(e["end_time"]))
         event.add("description", e["description"])
+        event.add("dtstamp", datetime.utcnow())
 
         uid = hashlib.md5((e["title"] + e["start_time"]).encode()).hexdigest()
         event.add("uid", uid)
