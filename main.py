@@ -80,6 +80,42 @@ def create_ics(events):
         f.write(cal.to_ical())
 
 
+def sweeney_todd_events():
+    venue = "Council Rock High School North"
+    city = "Newtown, PA"
+    description = (
+        "Sock 'n' Buskin brings Stephen Sondheim's dark musical Sweeney Todd to the stage "
+        "for a three-night run at Council Rock North."
+    )
+
+    return [
+        {
+            "title": "Sweeney Todd - Council Rock North",
+            "venue": venue,
+            "city": city,
+            "start_time": "2026-04-30T19:00:00",
+            "end_time": "2026-04-30T21:30:00",
+            "description": description,
+        },
+        {
+            "title": "Sweeney Todd - Council Rock North",
+            "venue": venue,
+            "city": city,
+            "start_time": "2026-05-01T19:00:00",
+            "end_time": "2026-05-01T21:30:00",
+            "description": description,
+        },
+        {
+            "title": "Sweeney Todd - Council Rock North",
+            "venue": venue,
+            "city": city,
+            "start_time": "2026-05-02T19:00:00",
+            "end_time": "2026-05-02T21:30:00",
+            "description": description,
+        },
+    ]
+
+
 def main():
     urls = fetch_patch_events()
 
@@ -90,6 +126,7 @@ def main():
         except:
             continue
 
+    events.extend(sweeney_todd_events())
     create_ics(events)
 
 
