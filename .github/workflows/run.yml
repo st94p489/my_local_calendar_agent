@@ -48,6 +48,9 @@ jobs:
           fi
           git commit -m "update events"
           # Ensure local branch is updated before pushing
-          git fetch origin
-          git rebase origin/main || git rebase --abort
-          git push origin main
+          git fetch origin main
+          git rebase origin/main || git merge origin/main
+          git push origin main || (
+            echo "Push failed, forcing push..."
+            git push origin main --force
+          )
