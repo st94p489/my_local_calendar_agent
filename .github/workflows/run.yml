@@ -42,15 +42,26 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add events.ics
+
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
+
           git commit -m "update events"
+
           # Ensure local branch is updated before pushing
           git fetch origin main
-          git rebase origin/main || git merge origin/main
-          git push origin main || (
-            echo "Push failed, forcing push..."
-            git push origin main --force
-          )
+
+          # Attempt rebase and fallback
+          {
+            git rebase origin/main ||
+            git rebase --abort ||
+            git merge origin/main
+          }
+
+          # Push changes and fallback to force
+          {
+            git push origin main ||
+            (echo "First push failed. Attempting force push..." && git push origin main --force)
+          }
